@@ -191,6 +191,27 @@ unsigned char* idpass_lite_create_card_with_face(void* self,
                                                  int ident_buf_len);
 
 /**
+* Verify user's QR code ID against a matching photo template.
+*
+* @param self Calling context
+* @param *outlen Bytes length of returned bytes
+* @param encrypted_card The user's QR code ID
+* @param encrypted_card_len Bytes length of encrypted_card
+* @param photo The ID owner's photo capture template
+* @param photo_len Length of bytes of photo template
+* @return Returns the user's CardDetails if there is facial match.
+*/
+
+// Returns CardDetails object if face matches
+MODULE_API unsigned char*
+idpass_lite_verify_card_with_face_template(void* self,
+                                  int* outlen,
+                                  unsigned char* encrypted_card,
+                                  int encrypted_card_len,
+                                  unsigned char* photo,
+                                  int photo_len);
+                                  
+/**
 * Verify user's QR code ID against a matching photo.
 *
 * @param self Calling context

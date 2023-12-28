@@ -968,9 +968,12 @@ idpass_lite_verify_card_with_face_template(void* self,
         return nullptr;
     }
     
-    double face_diff = 0.0;
-    int err = idpass_lite_compare_face_template(photo, photo_len, access.face().data(), access.face(), &face_diff);
-
+    float face_diff = 0.0;
+    std::string faceString = access.face();
+    std::vector<unsigned char> cardFaceCopy(faceString.begin(), faceString.end());
+    unsigned char* cardFace = cardFaceCopy.data();
+    int err = idpass_lite_compare_face_template(photo, photo_len, cardFace, cardFaceCopy.size(), &face_diff);
+    
     if(err != 0) {
         return nullptr;
     }

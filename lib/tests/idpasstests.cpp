@@ -1740,6 +1740,80 @@ TEST_F(TestCases, test_merge_CardDetails)
     }
 }
 
+TEST_F(TestCases, test_verify_card_with_face_template)
+{
+    std::string inputfile = std::string(datapath) + "manny1.bmp";
+    std::ifstream f1(inputfile, std::ios::binary);
+    std::vector<char> photo(std::istreambuf_iterator<char>{f1}, {});
+
+    std::uint64_t vizflags = DETAIL_SURNAME | DETAIL_PLACEOFBIRTH;
+    unsigned char ioctlcmd[9];
+    ioctlcmd[0] = IOCTL_SET_ACL;
+    std::memcpy(&ioctlcmd[1], &vizflags, 8);
+
+    idpass_lite_ioctl(ctx, nullptr, ioctlcmd, sizeof ioctlcmd);
+
+    idpass::Pair* privextra = m_ident.add_privextra();
+    privextra->set_key("color");
+    privextra->set_value("blue");
+
+    std::vector<unsigned char> buf(m_ident.ByteSizeLong());
+    m_ident.SerializeToArray(buf.data(), buf.size());
+    
+    int cards_len;
+    unsigned char* cards
+        = idpass_lite_create_card_with_face(ctx, &cards_len, buf.data(), buf.size());
+
+    ASSERT_TRUE(cards != nullptr); 
+
+    // Compute the 128D face descriptor
+    float faceArray[128];
+    int result = idpass_lite_face128d(ctx, photo.data(), photo.size(), faceArray);
+    ASSERT_NE(result, 0); // Check that the function succeeded
+
+    int outlen;
+    unsigned char* details = idpass_lite_verify_card_with_face_template(ctx, &outlen, cards, cards_len, reinterpret_cast<unsigned char*>(faceArray), sizeof(faceArray));
+
+    ASSERT_NE(details, nullptr);
+}
+
+TEST_F(TestCases, test_verify_card_with_face_template_with_different_photo)
+{
+    std::string inputfile = std::string(datapath) + "brad.jpg";
+    std::ifstream f1(inputfile, std::ios::binary);
+    std::vector<char> photo(std::istreambuf_iterator<char>{f1}, {});
+
+    std::uint64_t vizflags = DETAIL_SURNAME | DETAIL_PLACEOFBIRTH;
+    unsigned char ioctlcmd[9];
+    ioctlcmd[0] = IOCTL_SET_ACL;
+    std::memcpy(&ioctlcmd[1], &vizflags, 8);
+
+    idpass_lite_ioctl(ctx, nullptr, ioctlcmd, sizeof ioctlcmd);
+
+    idpass::Pair* privextra = m_ident.add_privextra();
+    privextra->set_key("color");
+    privextra->set_value("blue");
+
+    std::vector<unsigned char> buf(m_ident.ByteSizeLong());
+    m_ident.SerializeToArray(buf.data(), buf.size());
+    
+    int cards_len;
+    unsigned char* cards
+        = idpass_lite_create_card_with_face(ctx, &cards_len, buf.data(), buf.size());
+
+    ASSERT_TRUE(cards != nullptr); 
+
+    // Compute the 128D face descriptor
+    float faceArray[128];
+    int result = idpass_lite_face128d(ctx, photo.data(), photo.size(), faceArray);
+    ASSERT_NE(result, 0); // Check that the function succeeded
+
+    int outlen;
+    unsigned char* details = idpass_lite_verify_card_with_face_template(ctx, &outlen, cards, cards_len, reinterpret_cast<unsigned char*>(faceArray), sizeof(faceArray));
+
+    ASSERT_EQ(details, nullptr);
+}
+
 int main(int argc, char* argv[])
 {
     if (argc > 1) {
@@ -1773,7 +1847,8 @@ int main(int argc, char* argv[])
 
             //testing::GTEST_FLAG(filter) = "*test_new_protobuf_fields*";
             //testing::GTEST_FLAG(filter) = "*test_merge_CardDetails*";
-
+            //testing::GTEST_FLAG(filter) = "*test_verify_card_with_face_template*";
+            //testing::GTEST_FLAG(filter) = "*test_verify_card_with_face_template_with_different_photo*";
             return RUN_ALL_TESTS();
         }
     }
