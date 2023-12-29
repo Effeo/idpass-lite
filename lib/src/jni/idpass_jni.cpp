@@ -47,21 +47,24 @@ jlong idpass_init(JNIEnv *env,
     jbyte *rootcerts_buf = rootcerts != nullptr ? env->GetByteArrayElements(rootcerts, 0) : nullptr;
     jsize rootcerts_buf_len = rootcerts != nullptr ? env->GetArrayLength(rootcerts) : 0;
 
-    void *ctx
-        = idpass_lite_init(reinterpret_cast<unsigned char *>(cryptokeys_buf),
-                           cryptokeys_buf_len,
-                           reinterpret_cast<unsigned char *>(rootcerts_buf),
-                           rootcerts_buf_len);
+    void *ctx = idpass_lite_init(reinterpret_cast<unsigned char *>(cryptokeys_buf),
+                                 cryptokeys_buf_len,
+                                 reinterpret_cast<unsigned char *>(rootcerts_buf),
+                                 rootcerts_buf_len);
 
     env->ReleaseByteArrayElements(cryptokeys, cryptokeys_buf, 0);
-    if (rootcerts) {
+    if (rootcerts)
+    {
         env->ReleaseByteArrayElements(rootcerts, rootcerts_buf, 0);
     }
 
-    if (ctx) {
+    if (ctx)
+    {
         LOGI("idpass_api_init ok");
         return reinterpret_cast<long long>(ctx); // no error
-    } else {
+    }
+    else
+    {
         LOGI("idpass_api_init fail: sodium_init");
         return 0;
     }
@@ -69,29 +72,29 @@ jlong idpass_init(JNIEnv *env,
 
 jboolean generate_encryption_key(JNIEnv *env, jclass clazz, jbyteArray enc)
 {
-    jbyte* enc_buf = env->GetByteArrayElements(enc, 0);
+    jbyte *enc_buf = env->GetByteArrayElements(enc, 0);
     jsize enc_buf_len = env->GetArrayLength(enc);
 
     unsigned char buf[ENCRYPTION_KEY_LEN];
     int status = idpass_lite_generate_encryption_key(
-        reinterpret_cast<unsigned char*>(enc_buf), enc_buf_len);
+        reinterpret_cast<unsigned char *>(enc_buf), enc_buf_len);
 
     env->ReleaseByteArrayElements(enc, enc_buf, 0);
     return status == 0 ? JNI_TRUE : JNI_FALSE;
 }
 
 jboolean generate_secret_signature_keypair(JNIEnv *env, jclass clazz,
-    jbyteArray pk, jbyteArray sk)
+                                           jbyteArray pk, jbyteArray sk)
 {
-    jbyte* pk_buf = env->GetByteArrayElements(pk, 0);
+    jbyte *pk_buf = env->GetByteArrayElements(pk, 0);
     jsize pk_buf_len = env->GetArrayLength(pk);
 
-    jbyte* sk_buf = env->GetByteArrayElements(sk, 0);
+    jbyte *sk_buf = env->GetByteArrayElements(sk, 0);
     jsize sk_buf_len = env->GetArrayLength(sk);
 
     int status = idpass_lite_generate_secret_signature_keypair(
-        reinterpret_cast<unsigned char*>(pk_buf), pk_buf_len,
-        reinterpret_cast<unsigned char*>(sk_buf), sk_buf_len);
+        reinterpret_cast<unsigned char *>(pk_buf), pk_buf_len,
+        reinterpret_cast<unsigned char *>(sk_buf), sk_buf_len);
 
     env->ReleaseByteArrayElements(pk, pk_buf, 0);
     env->ReleaseByteArrayElements(sk, sk_buf, 0);
@@ -118,7 +121,8 @@ jfloat compare_face_template(JNIEnv *env,
         face2_buf_len,
         &result);
 
-    if (status == 0) {
+    if (status == 0)
+    {
         return result;
     }
 
@@ -141,7 +145,8 @@ generate_root_certificate(JNIEnv *env, jclass clazz, jbyteArray secretKey)
         reinterpret_cast<unsigned char *>(secretKey_buf),
         secretKey_buf_len,
         &outlen);
-    if (rootcert) {
+    if (rootcert)
+    {
         rootCertificate = env->NewByteArray(outlen);
         env->SetByteArrayRegion(
             rootCertificate, 0, outlen, (const jbyte *)rootcert);
@@ -171,7 +176,8 @@ jbyteArray generate_child_certificate(JNIEnv *env,
         childSecretKey_buf_len,
         &outlen);
 
-    if (childcert) {
+    if (childcert)
+    {
         childCertificate = env->NewByteArray(outlen);
         env->SetByteArrayRegion(
             childCertificate, 0, outlen, (const jbyte *)childcert);
@@ -194,7 +200,8 @@ void add_revoked_key(JNIEnv *env, jclass clazz, jbyteArray pubkey)
 jbyteArray ioctl(JNIEnv *env, jobject thiz, jlong context, jbyteArray iobuf)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx) {
+    if (!ctx)
+    {
         LOGI("null ctx");
         return env->NewByteArray(0);
     }
@@ -202,7 +209,8 @@ jbyteArray ioctl(JNIEnv *env, jobject thiz, jlong context, jbyteArray iobuf)
     jbyte *buf = env->GetByteArrayElements(iobuf, 0);
     jsize buf_len = env->GetArrayLength(iobuf);
 
-    if (buf[0] == IOCTL_SET_ACL) {
+    if (buf[0] == IOCTL_SET_ACL)
+    {
         std::reverse(buf + 1, buf + 9);
     }
 
@@ -219,7 +227,8 @@ jbyteArray create_card_with_face(JNIEnv *env,
                                  jbyteArray ident)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx) {
+    if (!ctx)
+    {
         LOGI("null ctx");
         return env->NewByteArray(0);
     }
@@ -236,12 +245,15 @@ jbyteArray create_card_with_face(JNIEnv *env,
         reinterpret_cast<unsigned char *>(ident_buf),
         ident_buf_len);
 
-    if (eSignedIDPassCard != nullptr) {
+    if (eSignedIDPassCard != nullptr)
+    {
         ecard = env->NewByteArray(outlen);
         env->SetByteArrayRegion(
             ecard, 0, outlen, (const jbyte *)eSignedIDPassCard);
         idpass_lite_freemem(ctx, eSignedIDPassCard);
-    } else {
+    }
+    else
+    {
         ecard = env->NewByteArray(0);
     }
 
@@ -251,6 +263,52 @@ jbyteArray create_card_with_face(JNIEnv *env,
     return ecard; // encrypted SignedIDPassCard proto object
 }
 
+jbyteArray verify_card_with_face_template(JNIEnv *env,
+                                          jobject thiz,
+                                          jlong context,
+                                          jbyteArray photo_template,
+                                          jbyteArray e_signed_card)
+{
+    void *ctx = reinterpret_cast<void *>(context);
+    if (!ctx)
+    {
+        LOGI("null ctx");
+        return env->NewByteArray(0);
+    }
+
+    jbyteArray ret = nullptr;
+    jbyte *buf = env->GetByteArrayElements(photo_template, 0);
+    jsize buf_len = env->GetArrayLength(photo_template);
+
+    jbyte *eSignedIDPassCard = env->GetByteArrayElements(e_signed_card, 0);
+    jsize eSignedIDPassCard_len = env->GetArrayLength(e_signed_card);
+
+    int details_len = 0;
+    unsigned char *details = idpass_lite_verify_card_with_face_template(
+        ctx,
+        &details_len,
+        reinterpret_cast<unsigned char *>(eSignedIDPassCard),
+        eSignedIDPassCard_len,
+        reinterpret_cast<unsigned char *>(buf),
+        buf_len);
+
+    if (details != nullptr)
+    {
+        ret = env->NewByteArray(details_len);
+        env->SetByteArrayRegion(ret, 0, details_len, (const jbyte *)details);
+        idpass_lite_freemem(ctx, details);
+    }
+    else
+    {
+        ret = env->NewByteArray(0);
+    }
+
+    env->ReleaseByteArrayElements(photo_template, buf, 0);
+    env->ReleaseByteArrayElements(e_signed_card, eSignedIDPassCard, 0);
+
+    return ret;
+}
+
 jbyteArray verify_card_with_face(JNIEnv *env,
                                  jobject thiz,
                                  jlong context,
@@ -258,7 +316,8 @@ jbyteArray verify_card_with_face(JNIEnv *env,
                                  jbyteArray e_signed_card)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx) {
+    if (!ctx)
+    {
         LOGI("null ctx");
         return env->NewByteArray(0);
     }
@@ -279,11 +338,14 @@ jbyteArray verify_card_with_face(JNIEnv *env,
         reinterpret_cast<char *>(buf),
         buf_len);
 
-    if (details != nullptr) {
+    if (details != nullptr)
+    {
         ret = env->NewByteArray(details_len);
         env->SetByteArrayRegion(ret, 0, details_len, (const jbyte *)details);
         idpass_lite_freemem(ctx, details);
-    } else {
+    }
+    else
+    {
         ret = env->NewByteArray(0);
     }
 
@@ -300,7 +362,8 @@ jbyteArray verify_card_with_pin(JNIEnv *env,
                                 jbyteArray e_signed_card)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx) {
+    if (!ctx)
+    {
         LOGI("null ctx");
         return env->NewByteArray(0);
     }
@@ -319,11 +382,14 @@ jbyteArray verify_card_with_pin(JNIEnv *env,
         eSignedIDPassCard_len,
         strPin);
 
-    if (details != nullptr) {
+    if (details != nullptr)
+    {
         ret = env->NewByteArray(details_len);
         env->SetByteArrayRegion(ret, 0, details_len, (const jbyte *)details);
         idpass_lite_freemem(ctx, details);
-    } else {
+    }
+    else
+    {
         ret = env->NewByteArray(0);
     }
 
@@ -340,7 +406,8 @@ jbyteArray encrypt_with_card(JNIEnv *env,
                              jbyteArray data)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx) {
+    if (!ctx)
+    {
         LOGI("null ctx");
         return env->NewByteArray(0);
     }
@@ -376,7 +443,8 @@ jbyteArray sign_with_card(JNIEnv *env,
                           jbyteArray data)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx) {
+    if (!ctx)
+    {
         LOGI("null ctx");
         return env->NewByteArray(0);
     }
@@ -389,11 +457,11 @@ jbyteArray sign_with_card(JNIEnv *env,
     unsigned char sig[64];
     int sig_len = 64;
     if (0 != idpass_lite_sign_with_card(
-        ctx, sig, 64,
-        reinterpret_cast<unsigned char *>(eSignedIDPassCard),
-        eSignedIDPassCard_len,
-        reinterpret_cast<unsigned char *>(bufData),
-        bufData_len)) 
+                 ctx, sig, 64,
+                 reinterpret_cast<unsigned char *>(eSignedIDPassCard),
+                 eSignedIDPassCard_len,
+                 reinterpret_cast<unsigned char *>(bufData),
+                 bufData_len))
     {
         env->ReleaseByteArrayElements(e_signed_card, eSignedIDPassCard, 0);
         env->ReleaseByteArrayElements(data, bufData, 0);
@@ -402,7 +470,7 @@ jbyteArray sign_with_card(JNIEnv *env,
 
     jbyteArray ret = env->NewByteArray(sig_len);
     env->SetByteArrayRegion(ret, 0, sig_len, (const jbyte *)sig);
-    //idpass_lite_freemem(ctx, sig);
+    // idpass_lite_freemem(ctx, sig);
     ////////////////////////
     env->ReleaseByteArrayElements(e_signed_card, eSignedIDPassCard, 0);
     env->ReleaseByteArrayElements(data, bufData, 0);
@@ -416,7 +484,8 @@ jobject generate_qrcode_pixels(JNIEnv *env,
                                jbyteArray data)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx) {
+    if (!ctx)
+    {
         LOGI("null ctx");
         return env->NewByteArray(0);
     }
@@ -437,14 +506,15 @@ jobject generate_qrcode_pixels(JNIEnv *env,
 
     int pixels_count = square_side_len * square_side_len;
 
-    jobject obj
-        = env->NewObject(jcls, constructor, pixels_count + 1); // BitSet(n + 1)
+    jobject obj = env->NewObject(jcls, constructor, pixels_count + 1); // BitSet(n + 1)
     jmethodID setBit = env->GetMethodID(jcls, "set", "(I)V");
     env->CallVoidMethod(obj, setBit, pixels_count);
 
     // Copy the QR Code pixels into the BitSet object
-    for (int i = 0; i < pixels_count; i++) {
-        if (TestBit(pixels, i)) {
+    for (int i = 0; i < pixels_count; i++)
+    {
+        if (TestBit(pixels, i))
+        {
             env->CallVoidMethod(obj, setBit, i);
         }
     }
@@ -458,7 +528,8 @@ jbyteArray
 compute_face_128d(JNIEnv *env, jobject thiz, jlong context, jbyteArray photo)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx) {
+    if (!ctx)
+    {
         LOGI("null ctx");
         return env->NewByteArray(0);
     }
@@ -473,10 +544,13 @@ compute_face_128d(JNIEnv *env, jobject thiz, jlong context, jbyteArray photo)
         ctx, reinterpret_cast<char *>(buf), buf_len, facearray);
 
     // this method only returns workable data if it finds exactly 1 face
-    if (face_count == 1) {
+    if (face_count == 1)
+    {
         face128d = env->NewByteArray(128 * 4);
         env->SetByteArrayRegion(face128d, 0, 128 * 4, (const jbyte *)facearray);
-    } else {
+    }
+    else
+    {
         face128d = env->NewByteArray(0);
     }
 
@@ -488,7 +562,8 @@ jbyteArray
 compute_face_64d(JNIEnv *env, jobject thiz, jlong context, jbyteArray photo)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx) {
+    if (!ctx)
+    {
         LOGI("null ctx");
         return env->NewByteArray(0);
     }
@@ -503,10 +578,13 @@ compute_face_64d(JNIEnv *env, jobject thiz, jlong context, jbyteArray photo)
         ctx, reinterpret_cast<char *>(buf), buf_len, facearray);
 
     // this method only returns workable data if it finds exactly 1 face
-    if (face_count == 1) {
+    if (face_count == 1)
+    {
         face64d = env->NewByteArray(64 * 2);
         env->SetByteArrayRegion(face64d, 0, 64 * 2, (const jbyte *)facearray);
-    } else {
+    }
+    else
+    {
         face64d = env->NewByteArray(0);
     }
 
@@ -521,7 +599,8 @@ jbyteArray decrypt_with_card(JNIEnv *env,
                              jbyteArray encrypted)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx) {
+    if (!ctx)
+    {
         LOGI("null ctx");
         return env->NewByteArray(0);
     }
@@ -540,7 +619,8 @@ jbyteArray decrypt_with_card(JNIEnv *env,
         reinterpret_cast<unsigned char *>(encrypted_buf),
         encrypted_buf_len);
 
-    if (!decrypted) {
+    if (!decrypted)
+    {
         env->ReleaseByteArrayElements(fullcard, fullcard_buf, 0);
         env->ReleaseByteArrayElements(encrypted, encrypted_buf, 0);
         return env->NewByteArray(0);
@@ -564,7 +644,8 @@ jbyteArray card_decrypt(JNIEnv *env,
                         jbyteArray key)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx) {
+    if (!ctx)
+    {
         LOGI("null ctx");
         return env->NewByteArray(0);
     }
@@ -580,8 +661,8 @@ jbyteArray card_decrypt(JNIEnv *env,
                                  reinterpret_cast<unsigned char *>(ecard_buf),
                                  &len,
                                  reinterpret_cast<unsigned char *>(key_buf),
-                                 key_buf_len)
-        != 0) {
+                                 key_buf_len) != 0)
+    {
         env->ReleaseByteArrayElements(ecard, ecard_buf, 0);
         env->ReleaseByteArrayElements(key, key_buf, 0);
         return env->NewByteArray(0);
@@ -606,7 +687,8 @@ jboolean verify_with_card(JNIEnv *env,
     void *ctx = reinterpret_cast<void *>(context);
     jboolean flag = JNI_FALSE;
 
-    if (!ctx) {
+    if (!ctx)
+    {
         LOGI("null ctx");
         return flag;
     }
@@ -627,8 +709,8 @@ jboolean verify_with_card(JNIEnv *env,
             reinterpret_cast<unsigned char *>(signature_buf),
             signature_buf_len,
             reinterpret_cast<unsigned char *>(pubkey_buf),
-            pubkey_buf_len)
-        == 0) {
+            pubkey_buf_len) == 0)
+    {
         flag = JNI_TRUE;
     }
 
@@ -645,7 +727,8 @@ jboolean add_certificates(JNIEnv *env,
                           jbyteArray certificates)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx || !certificates) {
+    if (!ctx || !certificates)
+    {
         return JNI_FALSE;
     }
 
@@ -653,11 +736,11 @@ jboolean add_certificates(JNIEnv *env,
     jbyte *certificates_buf = env->GetByteArrayElements(certificates, 0);
     jsize certificates_buf_len = env->GetArrayLength(certificates);
 
-    if (0
-        == idpass_lite_add_certificates(
-            ctx,
-            reinterpret_cast<unsigned char *>(certificates_buf),
-            certificates_buf_len)) {
+    if (0 == idpass_lite_add_certificates(
+                 ctx,
+                 reinterpret_cast<unsigned char *>(certificates_buf),
+                 certificates_buf_len))
+    {
         flag = true;
     }
 
@@ -672,7 +755,8 @@ jint verify_card_certificate(JNIEnv *env,
                              jbyteArray fullcard)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx || !fullcard) {
+    if (!ctx || !fullcard)
+    {
         return -1;
     }
 
@@ -690,7 +774,8 @@ jint verify_card_certificate(JNIEnv *env,
 jbyteArray uio(JNIEnv *env, jobject thiz, jlong context, jint typ)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx) {
+    if (!ctx)
+    {
         LOGI("null ctx");
         return env->NewByteArray(0);
     }
@@ -700,17 +785,20 @@ jbyteArray uio(JNIEnv *env, jobject thiz, jlong context, jint typ)
     unsigned char *buf = idpass_lite_uio(ctx, typ);
     int buf_len = 0;
 
-    if (buf != nullptr) {
+    if (buf != nullptr)
+    {
         std::memcpy(&buf_len, buf, sizeof(int));
         ecard = env->NewByteArray(buf_len);
         env->SetByteArrayRegion(
             ecard, 0, buf_len, (const jbyte *)(buf + sizeof(int)));
         idpass_lite_freemem(ctx, buf);
-    } else {
+    }
+    else
+    {
         ecard = env->NewByteArray(0);
     }
 
-    return ecard; 
+    return ecard;
 }
 
 jboolean verify_card_signature(JNIEnv *env,
@@ -719,16 +807,17 @@ jboolean verify_card_signature(JNIEnv *env,
                                jbyteArray fullcard /*, jboolean skipcertcheck */)
 {
     void *ctx = reinterpret_cast<void *>(context);
-    if (!ctx) {
+    if (!ctx)
+    {
         return JNI_FALSE;
     }
 
     jbyte *fullcard_buf = env->GetByteArrayElements(fullcard, 0);
     jsize fullcard_buf_len = env->GetArrayLength(fullcard);
 
-    if (0
-        != idpass_lite_verify_card_signature(
-            ctx, (unsigned char*)fullcard_buf, fullcard_buf_len, 1)) {
+    if (0 != idpass_lite_verify_card_signature(
+                 ctx, (unsigned char *)fullcard_buf, fullcard_buf_len, 1))
+    {
         return JNI_FALSE;
     }
 
@@ -745,8 +834,8 @@ compute_hash(JNIEnv *env, jclass clazz, jbyteArray data, jbyteArray hash)
     jsize hash_buf_len = env->GetArrayLength(hash);
 
     int status = idpass_lite_compute_hash(
-        (unsigned char*)data_buf, data_buf_len, 
-        (unsigned char*)hash_buf, hash_buf_len);
+        (unsigned char *)data_buf, data_buf_len,
+        (unsigned char *)hash_buf, hash_buf_len);
 
     env->ReleaseByteArrayElements(data, data_buf, 0);
     env->ReleaseByteArrayElements(hash, hash_buf, 0);
@@ -783,11 +872,12 @@ jbyteArray merge_CardDetails(JNIEnv *env,
                                                        details2_buf_len,
                                                        &buf_len);
 
-    if (buf != nullptr) {
+    if (buf != nullptr)
+    {
         merged = env->NewByteArray(buf_len);
         env->SetByteArrayRegion(merged, 0, buf_len, (const jbyte *)buf);
         idpass_lite_freemem(nullptr, buf);
-    } 
+    }
 
     env->ReleaseByteArrayElements(details1, details1_buf, 0);
     env->ReleaseByteArrayElements(details2, details2_buf, 0);
@@ -799,10 +889,10 @@ jbyteArray merge_CardDetails(JNIEnv *env,
 To avoid using Android's Os.setenv() which requires minSdkVersion 26
 */
 void setenviron(JNIEnv *env,
-                 jclass clazz,
-                 jstring name,
-                 jstring value, 
-                 jboolean overwrite)
+                jclass clazz,
+                jstring name,
+                jstring value,
+                jboolean overwrite)
 {
     const char *namesz = env->GetStringUTFChars(name, 0);
     const char *valuesz = env->GetStringUTFChars(value, 0);
@@ -822,8 +912,8 @@ jstring getenviron(JNIEnv *env,
                    jclass clazz,
                    jstring name)
 {
-    const char* namesz = env->GetStringUTFChars(name, 0);
-    const char* valuesz = getenv(namesz);
+    const char *namesz = env->GetStringUTFChars(name, 0);
+    const char *valuesz = getenv(namesz);
 
     env->ReleaseStringUTFChars(name, namesz);
     return env->NewStringUTF(valuesz);
@@ -841,6 +931,10 @@ JNINativeMethod IDPASS_JNI[] = {
     {(char *)"verify_card_with_face",
      (char *)"(J[B[B)[B",
      (void *)verify_card_with_face},
+
+    {(char *)"verify_card_with_face_template", 
+     (char *)"(J[B[B)[B", 
+     (void *)verify_card_with_face_template},
 
     {(char *)"verify_card_with_pin",
      (char *)"(JLjava/lang/String;[B)[B",

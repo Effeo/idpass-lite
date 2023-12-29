@@ -45,6 +45,7 @@ public class IDPassReader {
             byte[] ident);
 
     private native byte[] verify_card_with_face(long ctx, byte[] photo, byte[] ecard);
+    private native byte[] verify_card_with_face_template(long ctx, byte[] photoTemplate, byte[] ecard);
     private native byte[] verify_card_with_pin(long ctx, String pin, byte[] ecard);
     private native byte[] encrypt_with_card(long ctx, byte[] ecard, byte[] data);
     private native byte[] decrypt_with_card(long ctx, byte[] ciphertext, byte[] skpk);
