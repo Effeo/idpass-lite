@@ -68,7 +68,7 @@ public class IDPassReader {
     private static native void setenviron(String name, String value, boolean overwrite);
     private static native String getenviron(String name);
     //=========================================================
-
+    
     public static void main(String args[])
     {
         System.out.println("JNI methods/libidpasslite.so linking OK");

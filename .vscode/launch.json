@@ -4,6 +4,12 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
+        {
+            "type": "java",
+            "name": "IDPassReader",
+            "request": "launch",
+            "mainClass": "org.idpass.lite.IDPassReader",
+            "projectName": "idpass-lite_9d892f7d"
+        }
     ]
 }
