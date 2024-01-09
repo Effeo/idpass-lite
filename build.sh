@@ -15,7 +15,7 @@ iscontainer() {
 }
 
 build_dependencies() {
-    if [ $2 = "macos" ];then
+    if [ -n "$2" ] && [ "$2" = "macos" ];then
         shift
         $project/dependencies/rebuild.sh $@
     else

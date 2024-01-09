@@ -26,6 +26,7 @@ import java.util.BitSet;
  */
 
 public class IDPassReader {
+    private long ctx;
 
     static {
         String idpasslib = System.getenv("IDPASSLITE");
@@ -68,9 +69,30 @@ public class IDPassReader {
     private static native void setenviron(String name, String value, boolean overwrite);
     private static native String getenviron(String name);
     //=========================================================
-    
+    public byte[] getFaceTemplate(byte[] photo, boolean full){
+        byte[] dimensions; 
+
+        if (full){
+            dimensions = compute_face_128d(ctx, photo);
+        }
+        else{
+            dimensions = compute_face_64d(ctx, photo);
+        }
+
+        return dimensions;
+    }
     public static void main(String args[])
     {
         System.out.println("JNI methods/libidpasslite.so linking OK");
+
+        Path photoPath = Paths.get("/home/franc/Development/idpass-lite/lib/tests/data/brad.jpg");
+
+        byte[] photoBytes = Files.readAllBytes(photoPath);
+
+        IDPassReader reader = new IDPassReader();
+
+        byte[] dimensions = reader.getFaceTemplate(photoBytes, true);
+
+        System.out.println("Dimensions: " + dimensions.length); 
     }
 }
