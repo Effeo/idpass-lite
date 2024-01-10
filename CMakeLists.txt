@@ -1,4 +1,3 @@
-cmake_minimum_required (VERSION 3.10.1)
 project(idpassmosip)
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/version.txt")

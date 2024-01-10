@@ -1,4 +1,3 @@
-cmkake_minimum_required(VERSION 3.10)
 project(idpasslite)
 
 if (NOT DEFINED CMAKE_ANDROID_ARCH_ABI)
