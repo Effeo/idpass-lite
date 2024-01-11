@@ -19,6 +19,9 @@
 package org.idpass.lite;
 
 import java.util.BitSet;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
 
 /**
  * Wrapper class of the libidpasslite.so shared
@@ -81,11 +84,11 @@ public class IDPassReader {
 
         return dimensions;
     }
-    public static void main(String args[])
+    public static void main(String args[]) throws Exception
     {
         System.out.println("JNI methods/libidpasslite.so linking OK");
 
-        Path photoPath = Paths.get("/home/franc/Development/idpass-lite/lib/tests/data/brad.jpg");
+        Path photoPath = Paths.get("/home/franc/Development/cpp/idpass-lite/lib/tests/data/brad.jpg");
 
         byte[] photoBytes = Files.readAllBytes(photoPath);
 

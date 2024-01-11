@@ -142,7 +142,7 @@ int load2matrix(const char* img,
 
     try {
         if (buffer[0] == '\xff' && buffer[1] == '\xd8' && buffer[2] == '\xff') {
-            dlib::load_jpeg(image, img, img_len);
+            dlib::load_jpeg(image, img);
         } else if (buffer[0] == 'B' && buffer[1] == 'M') {
             dlib::load_bmp(image, input);
         } else if (buffer[0] == 'D' && buffer[1] == 'N' && buffer[2] == 'G') {

@@ -9,6 +9,13 @@
             "name": "IDPassReader",
             "request": "launch",
             "mainClass": "org.idpass.lite.IDPassReader",
+            "projectName": ""
+        },
+        {
+            "type": "java",
+            "name": "IDPassReader",
+            "request": "launch",
+            "mainClass": "org.idpass.lite.IDPassReader",
             "projectName": "idpass-lite_9d892f7d"
         }
     ]
