@@ -158,7 +158,7 @@ build_release() {
     sleep 3
     #rm -rf build/release
     mkdir -p build/release && cd build/release
-    cmake -DCMAKE_BUILD_TYPE=Release -DTESTAPP=1 -DCMAKE_POSITION_INDEPENDENT_CODE=1 -DEMBED_MODELS=1 ../..
+    cmake -DCMAKE_BUILD_TYPE=Release -DTESTAPP=1 -DCMAKE_POSITION_INDEPENDENT_CODE=1 -DEMBED_MODELS=1 -DWITH_JNI=1 ../..
     cmake --build .
     [ $? -ne 0 ] && return 1
     cd - >/dev/null

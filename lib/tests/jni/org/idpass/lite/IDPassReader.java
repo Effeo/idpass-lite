@@ -75,7 +75,7 @@ public class IDPassReader {
     public byte[] getFaceTemplate(byte[] photo, boolean full){
         byte[] dimensions; 
 
-        if (full){
+        if (full) {
             dimensions = compute_face_128d(ctx, photo);
         }
         else{
